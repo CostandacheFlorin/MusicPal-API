@@ -14,7 +14,7 @@ export class RecommandationService {
     let BASE_RECOMMENDATION_URL = 'https://api.spotify.com/v1/recommendations';
 
     const token =
-      'BQDGZ81z15gntPucQe_efc-LJPZvjuIUknd_6h7xLi-YlXgtzj6YTRR3LeIbeDXJc_LVudHMtPZZNXmh7040z6U9a1J2exNoq9LrmIB5dfOtkpUsssYw';
+      'BQBbaPhJfNKNTJSdHoagkHs5bnlrVZbPncxFPZGwQ_V-B62HtAmkXCv1SQrTjH2fApez7T3Je6Nj8PduaCkdOe8xizgHHAJ81OztqgWVspBXBPoThZA';
     const headers = {
       Authorization: `Bearer ${token}`, // Add the bearer token to the Authorization header
     };
@@ -37,6 +37,8 @@ export class RecommandationService {
       const popularity2 = '100';
       BASE_RECOMMENDATION_URL += `?max_popularity=${popularity2}`;
     }
-    return this.httpService.get(`${BASE_RECOMMENDATION_URL}`, { headers });
+    console.log(BASE_RECOMMENDATION_URL);
+
+    return this.httpService.get(BASE_RECOMMENDATION_URL, { headers });
   }
 }

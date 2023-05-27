@@ -8,8 +8,8 @@ export class RecommendationsController {
   async getRecommendations() {
     try {
       return this.recommandationService.getRecomandation(
-        '0c6xIDDpzE81m2q797ordA',
-        '4NHQUGzhtTLFvgF5SZesLK',
+        null,
+        null,
         ['classical', 'country'],
         'high',
       );
