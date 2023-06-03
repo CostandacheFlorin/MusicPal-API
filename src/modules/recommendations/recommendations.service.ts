@@ -1,12 +1,16 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, Injectable } from '@nestjs/common';
+import { Inject, HttpException, Injectable } from '@nestjs/common';
 import { SearchService } from '../search/search.service';
-
+import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 @Injectable()
 export class RecommandationService {
   constructor(
     private readonly httpService: HttpService,
     private readonly searchService: SearchService,
+    private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async getRecomandation(
@@ -15,15 +19,11 @@ export class RecommandationService {
     genres: string,
     popularity: string,
   ) {
-    const BASE_RECOMMENDATION_URL =
-      'https://api.spotify.com/v1/recommendations';
-    const token =
-      'BQCxs3RmFc2dzm3_yT6aAcbsakRM78HH9yJ-IW33Nno66X3f-1_z2bIzfYWEWKc3CcwCal1HTfbyqckwPyOLiPYnJujO7Bl6vWrQ705fDM4gq0VkCGo';
-    const headers = {
-      Authorization: `Bearer ${token}`, // Add the bearer token to the Authorization header
-    };
+    const token = await this.cacheManager.get('spotify-auth-token');
 
-    let RECOMMENDATION_URL = BASE_RECOMMENDATION_URL.slice();
+    let RECOMMENDATION_URL = this.configService
+      .get('BASE_RECOMMENDATION_URL')
+      .slice();
     if (track) {
       const trackId = await this.searchService.getTrackId(track);
       RECOMMENDATION_URL += `?seed_tracks=${trackId}`;
@@ -47,7 +47,9 @@ export class RecommandationService {
     }
     try {
       const response = await this.httpService.axiosRef.get(RECOMMENDATION_URL, {
-        headers,
+        headers: {
+          Authorization: `Bearer ${token}`, // Add the bearer token to the Authorization header
+        },
       });
       const rightTracks = response.data.tracks.map((recommendationItem) => {
         if (recommendationItem.type === 'track') {
