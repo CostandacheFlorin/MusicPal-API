@@ -1,44 +1,73 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class RecommandationService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly searchService: SearchService,
+  ) {}
 
   async getRecomandation(
     track: string,
     artist: string,
-    genres: string[],
+    genres: string,
     popularity: string,
   ) {
-    let BASE_RECOMMENDATION_URL = 'https://api.spotify.com/v1/recommendations';
-
+    const BASE_RECOMMENDATION_URL =
+      'https://api.spotify.com/v1/recommendations';
     const token =
-      'BQBbaPhJfNKNTJSdHoagkHs5bnlrVZbPncxFPZGwQ_V-B62HtAmkXCv1SQrTjH2fApez7T3Je6Nj8PduaCkdOe8xizgHHAJ81OztqgWVspBXBPoThZA';
+      'BQCxs3RmFc2dzm3_yT6aAcbsakRM78HH9yJ-IW33Nno66X3f-1_z2bIzfYWEWKc3CcwCal1HTfbyqckwPyOLiPYnJujO7Bl6vWrQ705fDM4gq0VkCGo';
     const headers = {
       Authorization: `Bearer ${token}`, // Add the bearer token to the Authorization header
     };
 
+    let RECOMMENDATION_URL = BASE_RECOMMENDATION_URL.slice();
     if (track) {
-      BASE_RECOMMENDATION_URL += `?tracks=${track}`;
+      const trackId = await this.searchService.getTrackId(track);
+      RECOMMENDATION_URL += `?seed_tracks=${trackId}`;
     }
     if (artist) {
-      BASE_RECOMMENDATION_URL += `?seed_artists=${artist}`;
+      const artistId = await this.searchService.getArtistId(artist);
+      RECOMMENDATION_URL += `&seed_artists=${artistId}`;
     }
 
     if (genres && genres.length > 0) {
-      const queryString = genres
-        .map((genre) => `seed_genres=${encodeURIComponent(genre)}`)
-        .join('&');
-      BASE_RECOMMENDATION_URL += `?${queryString}`;
+      const genresAsArray = genres
+        .split(',')
+        .map((id) => encodeURIComponent(id));
+      const joinedGenres = genresAsArray.join(',');
+      RECOMMENDATION_URL += `&seed_genres=${joinedGenres}`;
     }
 
     if (popularity) {
       const popularity2 = '100';
-      BASE_RECOMMENDATION_URL += `?max_popularity=${popularity2}`;
+      RECOMMENDATION_URL += `&max_popularity=${popularity2}`;
     }
-    console.log(BASE_RECOMMENDATION_URL);
-
-    return this.httpService.get(BASE_RECOMMENDATION_URL, { headers });
+    try {
+      const response = await this.httpService.axiosRef.get(RECOMMENDATION_URL, {
+        headers,
+      });
+      const rightTracks = response.data.tracks.map((recommendationItem) => {
+        if (recommendationItem.type === 'track') {
+          return {
+            id: recommendationItem.id,
+            name: recommendationItem.name,
+            release_date: recommendationItem.album.release_date,
+            image: recommendationItem.album.images[0].url,
+            artists: recommendationItem.artists
+              .map((artist) => artist.name)
+              .join(', '),
+          };
+        }
+      });
+      return rightTracks;
+    } catch (error) {
+      throw new HttpException(
+        error.response.data.error.message,
+        error.response.data.error.status,
+      );
+    }
   }
 }
