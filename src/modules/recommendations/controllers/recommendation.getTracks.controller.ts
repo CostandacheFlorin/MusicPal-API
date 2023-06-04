@@ -1,4 +1,4 @@
-import { Controller, Get, Headers, Param, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { RecommandationService } from '../recommendations.service';
 @Controller('recommendations')
 export class RecommendationsController {

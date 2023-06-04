@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Inject, HttpException, Injectable } from '@nestjs/common';
+import { Inject, HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -18,24 +18,24 @@ export class SearchService {
       this.configService.get('BASE_SEARCH_URL') +
       `?q=${encodeURIComponent(artist)}&type=artist`;
 
-    try {
-      const response = await this.httpService.axiosRef.get(
-        SPOTIFY_SEARCH_ARTIST_URL,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Add the bearer token to the Authorization header
-          },
+    const response = await this.httpService.axiosRef.get(
+      SPOTIFY_SEARCH_ARTIST_URL,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add the bearer token to the Authorization header
         },
-      );
+      },
+    );
 
-      const artistId = response.data.artists.items[0].id;
-      return artistId;
-    } catch (error) {
+    if (response.data.artists.items.length === 0) {
       throw new HttpException(
-        error.response.data.error.message,
-        error.response.data.error.status,
+        'Could not find an artist with that name!',
+        HttpStatus.NOT_FOUND,
       );
     }
+
+    const artistId = response.data.artists.items[0].id;
+    return artistId;
   }
 
   async getTrackId(track: string) {
@@ -44,22 +44,22 @@ export class SearchService {
       this.configService.get('BASE_SEARCH_URL') +
       `?q=${encodeURIComponent(track)}&type=track`;
 
-    try {
-      const response = await this.httpService.axiosRef.get(
-        SPOTIFY_SEARCH_TRACK_URL,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Add the bearer token to the Authorization header
-          },
+    // cum arunc ce eroare imi da
+    const response = await this.httpService.axiosRef.get(
+      SPOTIFY_SEARCH_TRACK_URL,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add the bearer token to the Authorization header
         },
-      );
-      const trackId = response.data.tracks.items[0].id;
-      return trackId;
-    } catch (error) {
+      },
+    );
+    if (response.data.tracks.items.length === 0) {
       throw new HttpException(
-        error.response.data.error.message,
-        error.response.data.error.status,
+        'Could not find a track with that name!',
+        HttpStatus.NOT_FOUND,
       );
     }
+    const trackId = response.data.tracks.items[0].id;
+    return trackId;
   }
 }
