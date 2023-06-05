@@ -4,9 +4,9 @@ import { SearchService } from '../search/search.service';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { PopularityEnum } from './helpers/consts';
+import { BasicTrackQuery, PopularityEnum } from './helpers/consts';
 import {
-  returnGenresAsArray,
+  returnStringAsArray,
   returnRecommendationParamsNumber,
 } from './helpers/utils';
 
@@ -20,17 +20,18 @@ export class RecommandationService {
   ) {}
 
   async getRecomandation(
-    track: string,
+    tracks: BasicTrackQuery[],
     artist: string,
     genres: string,
     popularity: string,
   ) {
-    if (returnRecommendationParamsNumber(track, artist, genres) > 5) {
+    if (returnRecommendationParamsNumber(tracks, artist, genres) > 5) {
       throw new HttpException(
         'Combined length of track, artist, and genres should not exceed 5 items',
         HttpStatus.BAD_REQUEST,
       );
     }
+
     const token = await this.cacheManager.get('spotify-auth-token');
 
     let RECOMMENDATION_URL = this.configService
@@ -39,16 +40,24 @@ export class RecommandationService {
 
     RECOMMENDATION_URL += `?max_popularity=${PopularityEnum[popularity]}`;
 
-    if (genres && genres.length > 0) {
-      RECOMMENDATION_URL += `&seed_genres=${returnGenresAsArray(genres)}`;
+    if (genres) {
+      RECOMMENDATION_URL += `&seed_genres=${encodeURIComponent(genres)}`;
     }
-    if (track) {
-      const trackId = await this.searchService.getTrackId(track);
-      RECOMMENDATION_URL += `&seed_tracks=${trackId}`;
+    if (tracks) {
+      const trackIds = await Promise.all(
+        tracks.map(async (trackItem) =>
+          this.searchService.getTrackId(trackItem.track, trackItem.artist),
+        ),
+      );
+      RECOMMENDATION_URL += `&seed_tracks=${trackIds.join(',')}`;
     }
     if (artist) {
-      const artistId = await this.searchService.getArtistId(artist);
-      RECOMMENDATION_URL += `&seed_artists=${artistId}`;
+      const artistIds = await Promise.all(
+        returnStringAsArray(artist).map(async (albumItem) =>
+          this.searchService.getArtistId(albumItem),
+        ),
+      );
+      RECOMMENDATION_URL += `&seed_artists=${artistIds.join(',')}`;
     }
 
     console.log(RECOMMENDATION_URL);

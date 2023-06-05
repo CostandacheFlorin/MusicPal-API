@@ -1,12 +1,14 @@
+import { BasicTrackQuery } from '../consts';
+
 export const returnRecommendationParamsNumber = (
-  track: string,
+  track: BasicTrackQuery[],
   artist: string,
   genres: string,
 ) => {
   let itemsCount = 0;
 
   if (track) {
-    itemsCount++;
+    itemsCount += track.length;
   }
   if (artist) {
     itemsCount++;
@@ -19,7 +21,7 @@ export const returnRecommendationParamsNumber = (
   return itemsCount;
 };
 
-export const returnGenresAsArray = (genres) => {
-  const genresAsArray = genres.split(',').map((id) => encodeURIComponent(id));
-  return genresAsArray.join(',');
+export const returnStringAsArray = (string) => {
+  const asArray = string.split(',').map((item) => encodeURIComponent(item));
+  return asArray;
 };

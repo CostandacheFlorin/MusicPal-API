@@ -38,11 +38,13 @@ export class SearchService {
     return artistId;
   }
 
-  async getTrackId(track: string) {
+  async getTrackId(track: string, artist: string) {
     const token = await this.cacheManager.get('spotify-auth-token');
     const SPOTIFY_SEARCH_TRACK_URL =
       this.configService.get('BASE_SEARCH_URL') +
-      `?q=${encodeURIComponent(track)}&type=track`;
+      `?q=track:${encodeURIComponent(track)}+artist:${encodeURIComponent(
+        artist,
+      )}&type=track`;
 
     // cum arunc ce eroare imi da
     const response = await this.httpService.axiosRef.get(

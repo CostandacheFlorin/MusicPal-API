@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { Cron } from '@nestjs/schedule';
+import { OneDayInMS } from '../recommendations/helpers/consts';
 
 @Injectable()
 export class UtilsService implements OnModuleInit {
@@ -48,5 +49,27 @@ export class UtilsService implements OnModuleInit {
     } catch (err) {
       throw new Error(err);
     }
+  }
+
+  async getAllMusicGenres() {
+    const cachedGenres = await this.cacheManager.get('music-genres');
+    if (cachedGenres) {
+      return cachedGenres;
+    }
+    const token = await this.cacheManager.get('spotify-auth-token');
+    const response = await this.httpService.axiosRef.get(
+      this.configService.get('SPOTIFY_GET_GENRES_URL'),
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    await this.cacheManager.set(
+      'music-genres',
+      response.data.genres,
+      OneDayInMS,
+    );
+    return response.data.genres;
   }
 }
