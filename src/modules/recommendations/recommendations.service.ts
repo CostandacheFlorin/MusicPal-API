@@ -45,8 +45,14 @@ export class RecommandationService {
     }
     if (tracks) {
       const trackIds = await Promise.all(
-        tracks.map(async (trackItem) =>
-          this.searchService.getTrackId(trackItem.track, trackItem.artist),
+        tracks.map(
+          async (trackItem) =>
+            (
+              await this.searchService.getTrack(
+                trackItem.track,
+                trackItem.artist,
+              )
+            ).id,
         ),
       );
       RECOMMENDATION_URL += `&seed_tracks=${trackIds.join(',')}`;

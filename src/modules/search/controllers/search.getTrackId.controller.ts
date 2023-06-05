@@ -6,12 +6,15 @@ export class getTrackId {
   constructor(private readonly searchService: SearchService) {}
 
   @Get('/track')
-  async getArtistId(
+  async getTrackInfo(
     @Query('track') track: string,
     @Query('artist') artist: string,
   ) {
     try {
-      return this.searchService.getTrackId(track, artist);
+      console.log(track);
+      console.log(artist);
+
+      return this.searchService.getTrack(track, artist);
     } catch (e) {
       throw new Error(e);
     }

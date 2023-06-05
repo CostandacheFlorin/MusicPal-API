@@ -38,7 +38,7 @@ export class SearchService {
     return artistId;
   }
 
-  async getTrackId(track: string, artist: string) {
+  async getTrack(track: string, artist: string) {
     const token = await this.cacheManager.get('spotify-auth-token');
     const SPOTIFY_SEARCH_TRACK_URL =
       this.configService.get('BASE_SEARCH_URL') +
@@ -61,7 +61,16 @@ export class SearchService {
         HttpStatus.NOT_FOUND,
       );
     }
-    const trackId = response.data.tracks.items[0].id;
-    return trackId;
+    const trackInfo = response.data.tracks.items[0];
+    const artistNames = trackInfo.artists
+      .map((artistItem) => artistItem.name)
+      .join(', ');
+
+    return {
+      id: trackInfo.id,
+      image: trackInfo.album.images[0].url,
+      name: trackInfo.name,
+      artists: artistNames,
+    };
   }
 }
