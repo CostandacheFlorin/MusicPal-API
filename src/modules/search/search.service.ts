@@ -34,19 +34,25 @@ export class SearchService {
       );
     }
 
-    const artistId = response.data.artists.items[0].id;
-    return artistId;
+    const artistInfo = response.data.artists.items[0];
+    console.log(artistInfo);
+    return {
+      id: artistInfo.id,
+      image: artistInfo.images[0].url,
+      name: artistInfo.name,
+    };
   }
 
   async getTrack(track: string, artist: string) {
     const token = await this.cacheManager.get('spotify-auth-token');
     const SPOTIFY_SEARCH_TRACK_URL =
       this.configService.get('BASE_SEARCH_URL') +
-      `?q=track:${encodeURIComponent(track)}+artist:${encodeURIComponent(
+      `?q=track: ${encodeURIComponent(track)}+artist: ${encodeURIComponent(
         artist,
       )}&type=track`;
 
     // cum arunc ce eroare imi da
+    console.log(SPOTIFY_SEARCH_TRACK_URL);
     const response = await this.httpService.axiosRef.get(
       SPOTIFY_SEARCH_TRACK_URL,
       {

@@ -11,11 +11,9 @@ export class getTrackId {
     @Query('artist') artist: string,
   ) {
     try {
-      console.log(track);
-      console.log(artist);
-
       return this.searchService.getTrack(track, artist);
     } catch (e) {
+      console.log(e);
       throw new Error(e);
     }
   }
