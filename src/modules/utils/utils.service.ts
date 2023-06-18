@@ -16,7 +16,7 @@ export class UtilsService implements OnModuleInit {
   onModuleInit() {
     this.getSpotifyToken();
   }
-  @Cron('0 0/55 * * * *')
+  @Cron('0 */45 * * * *')
   async getSpotifyToken() {
     const cachedToken = await this.cacheManager.get('spotify-auth-token');
     if (cachedToken) {
