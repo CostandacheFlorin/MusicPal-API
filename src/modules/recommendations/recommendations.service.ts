@@ -59,8 +59,11 @@ export class RecommandationService {
     }
     if (artist) {
       const artistIds = await Promise.all(
-        returnStringAsArray(artist).map(async (albumItem) =>
-          this.searchService.getArtistId(albumItem),
+        returnStringAsArray(artist).map(
+          async (albumItem) =>
+            (
+              await this.searchService.getArtistId(albumItem)
+            ).id,
         ),
       );
       RECOMMENDATION_URL += `&seed_artists=${artistIds.join(',')}`;
