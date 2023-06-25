@@ -19,7 +19,7 @@ export class RecommandationService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async getRecomandation(
+  async getRecommendationsWithoutIds(
     tracks: BasicTrackQuery[],
     artist: string,
     genres: string,
@@ -91,6 +91,60 @@ export class RecommandationService {
       });
       return rightTracks;
     } catch (error) {
+      throw new HttpException(
+        error.response.data.error.message,
+        error.response.data.error.status,
+      );
+    }
+  }
+
+  async getRecommendations(
+    tracks: string[],
+    artists: string[],
+    genres: string[],
+    popularity: string,
+  ) {
+    if (tracks?.length + genres?.length + artists?.length > 5) {
+      throw new HttpException(
+        'Combined length of track, artist, and genres should not exceed 5 items',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const token = await this.cacheManager.get('spotify-auth-token');
+    let RECOMMENDATION_URL = this.configService.get('BASE_RECOMMENDATION_URL');
+
+    RECOMMENDATION_URL += `?max_popularity=${PopularityEnum[popularity]}`;
+
+    RECOMMENDATION_URL += `&seed_genres=${genres || ''}`;
+
+    RECOMMENDATION_URL += `&seed_tracks=${tracks || ''}`;
+
+    RECOMMENDATION_URL += `&seed_artists=${artists || ''}`;
+
+    console.log(RECOMMENDATION_URL);
+    try {
+      const response = await this.httpService.axiosRef.get(RECOMMENDATION_URL, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add the bearer token to the Authorization header
+        },
+      });
+      const rightTracks = response.data.tracks.map((recommendationItem) => {
+        if (recommendationItem.type === 'track') {
+          return {
+            id: recommendationItem.id,
+            name: recommendationItem.name,
+            release_date: recommendationItem.album.release_date,
+            image: recommendationItem.album.images[0].url,
+            artists: recommendationItem.artists
+              .map((artist) => artist.name)
+              .join(', '),
+          };
+        }
+      });
+      return rightTracks;
+    } catch (error) {
+      console.log(error);
       throw new HttpException(
         error.response.data.error.message,
         error.response.data.error.status,

@@ -6,14 +6,14 @@ export class RecommendationsController {
 
   @Get('/')
   async getRecommendations(
-    @Query('tracks') tracks: string,
-    @Query('artists') artists: string,
-    @Query('genres') genres: string,
+    @Query('tracks') tracks: string[],
+    @Query('artists') artists: string[],
+    @Query('genres') genres: string[],
     @Query('popularity') popularity: string,
   ) {
     try {
-      return this.recommandationService.getRecomandation(
-        JSON.parse(tracks),
+      return this.recommandationService.getRecommendations(
+        tracks,
         artists,
         genres,
         popularity,
