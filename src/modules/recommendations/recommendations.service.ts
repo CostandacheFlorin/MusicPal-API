@@ -104,6 +104,13 @@ export class RecommandationService {
     genres: string[],
     popularity: string,
   ) {
+    //  in case there is only one item, it should convert to an array instead of a string
+    const toArray = (value) => (typeof value === 'string' ? [value] : value);
+
+    artists = toArray(artists);
+    tracks = toArray(tracks);
+    genres = toArray(genres);
+
     if (tracks?.length + genres?.length + artists?.length > 5) {
       throw new HttpException(
         'Combined length of track, artist, and genres should not exceed 5 items',
@@ -114,15 +121,12 @@ export class RecommandationService {
     const token = await this.cacheManager.get('spotify-auth-token');
     let RECOMMENDATION_URL = this.configService.get('BASE_RECOMMENDATION_URL');
 
-    RECOMMENDATION_URL += `?max_popularity=${PopularityEnum[popularity]}`;
+    RECOMMENDATION_URL += `?max_popularity=${
+      PopularityEnum[popularity]
+    }&seed_genres=${genres?.join(',') || ''}&seed_tracks=${
+      tracks?.join(',') || ''
+    }&seed_artists=${artists?.join(',') || ''}`;
 
-    RECOMMENDATION_URL += `&seed_genres=${genres || ''}`;
-
-    RECOMMENDATION_URL += `&seed_tracks=${tracks || ''}`;
-
-    RECOMMENDATION_URL += `&seed_artists=${artists || ''}`;
-
-    console.log(RECOMMENDATION_URL);
     try {
       const response = await this.httpService.axiosRef.get(RECOMMENDATION_URL, {
         headers: {
