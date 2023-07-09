@@ -13,7 +13,6 @@ export class getTrackId {
     try {
       return this.searchService.getTrack(track, artist);
     } catch (e) {
-      console.log(e);
       throw new Error(e);
     }
   }
