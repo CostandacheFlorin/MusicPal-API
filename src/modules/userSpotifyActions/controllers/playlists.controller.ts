@@ -13,7 +13,7 @@ export class AddInPlaylistController {
 
   @Put('/save-in-playlist')
   async saveInPlaylist(
-    @Body() data: { trackId: string; userId: string; playlistId: string },
+    @Body('data') data: { trackId: string; userId: string; playlistId: string },
   ) {
     try {
       return this.usersSpotifyActionsService.addToPlaylist(
@@ -28,8 +28,8 @@ export class AddInPlaylistController {
 
   @Post('/create-playlist')
   async createPlaylist(
-    @Body()
-    data: {
+    @Body('data')
+    playlistData: {
       userId: string;
       name: string;
       description: string;
@@ -37,11 +37,12 @@ export class AddInPlaylistController {
     },
   ) {
     try {
+      const { userId, name, description, isPublic } = playlistData;
       return this.usersSpotifyActionsService.createPlaylist(
-        data.userId,
-        data.name,
-        data.description,
-        data.isPublic,
+        userId,
+        name,
+        description,
+        isPublic,
       );
     } catch (err) {
       throw new Error(err);

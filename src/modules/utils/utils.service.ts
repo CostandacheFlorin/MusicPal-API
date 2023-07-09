@@ -22,6 +22,7 @@ export class UtilsService implements OnModuleInit {
   ) {}
   onModuleInit() {
     this.getSpotifyToken();
+    this.refreshAllUsersTokens();
   }
   @Cron('0 */45 * * * *')
   async getSpotifyToken() {

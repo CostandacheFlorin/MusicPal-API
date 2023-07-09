@@ -20,7 +20,7 @@ export class FollowController {
   async UnfollowArtistForUser(
     @Body() user: { artistId: string; userId: string },
   ) {
-    return this.usersSpotifyActionsService.followArtist(
+    return this.usersSpotifyActionsService.unfollowArtist(
       user.userId,
       user.artistId,
     );

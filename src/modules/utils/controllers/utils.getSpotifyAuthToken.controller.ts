@@ -13,12 +13,12 @@ export class GetSpotifyTokenController {
     }
   }
 
-  @Get('/refresh-users-tokens')
-  async refreshUsersTokens() {
-    try {
-      return this.utilsService.refreshAllUsersTokens();
-    } catch (err) {
-      throw new Error(err);
-    }
-  }
+  // @Get('/refresh-users-tokens')
+  // async refreshUsersTokens() {
+  //   try {
+  //     return this.utilsService.refreshAllUsersTokens();
+  //   } catch (err) {
+  //     throw new Error(err);
+  //   }
+  // }
 }

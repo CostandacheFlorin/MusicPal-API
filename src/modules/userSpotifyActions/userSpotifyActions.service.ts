@@ -184,18 +184,29 @@ export class UserSpotifyActionsService {
       throw new HttpException("User doesn't exist!", 404);
     }
 
-    const response = await this.httpService.axiosRef.get(
-      'https://api.spotify.com/v1/me/tracks?limit=50',
-      {
-        headers: {
-          Authorization: `Bearer ${user.accessToken}`, // Add the bearer token to the Authorization header
-        },
-      },
-    );
+    let offset = 0;
+    let total = 10000; // Set an initial value that will be updated after the first request
+    const savedTracks = [];
 
-    const savedTracks = response.data.items.map((item) => {
-      return { id: item.track.id, name: item.track.name };
-    });
+    while (offset < total) {
+      const response = await this.httpService.axiosRef.get(
+        `https://api.spotify.com/v1/me/tracks?limit=50&offset=${offset}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        },
+      );
+
+      savedTracks.push(
+        ...response.data.items.map((item) => {
+          return { id: item.track.id, name: item.track.name };
+        }),
+      );
+
+      total = response.data.total;
+      offset += response.data.limit;
+    }
 
     return savedTracks;
   }
@@ -205,17 +216,24 @@ export class UserSpotifyActionsService {
       throw new HttpException("User doesn't exist!", 404);
     }
 
-    const response = await this.httpService.axiosRef.get(
-      'https://api.spotify.com/v1/me/following?type=artist&limit=50',
-      {
+    let nextUrl = `https://api.spotify.com/v1/me/following?type=artist&limit=50`;
+    const followedArtists = [];
+
+    while (nextUrl) {
+      const response = await this.httpService.axiosRef.get(nextUrl, {
         headers: {
-          Authorization: `Bearer ${user.accessToken}`, // Add the bearer token to the Authorization header
+          Authorization: `Bearer ${user.accessToken}`,
         },
-      },
-    );
-    const followedArtists = response.data.artists.items.map((item) => {
-      return { id: item.id, name: item.name };
-    });
+      });
+
+      followedArtists.push(
+        ...response.data.artists.items.map((item) => {
+          return { id: item.id, name: item.name };
+        }),
+      );
+
+      nextUrl = response.data.artists.next;
+    }
 
     return followedArtists;
   }

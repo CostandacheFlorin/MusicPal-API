@@ -139,6 +139,7 @@ export class RecommandationService {
             name: recommendationItem.name,
             release_date: recommendationItem.album.release_date,
             image: recommendationItem.album.images[0].url,
+            artistId: recommendationItem.artists[0].id,
             artists: recommendationItem.artists
               .map((artist) => artist.name)
               .join(', '),
