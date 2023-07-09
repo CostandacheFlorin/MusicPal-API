@@ -69,7 +69,6 @@ export class RecommandationService {
       RECOMMENDATION_URL += `&seed_artists=${artistIds.join(',')}`;
     }
 
-    console.log(RECOMMENDATION_URL);
     try {
       const response = await this.httpService.axiosRef.get(RECOMMENDATION_URL, {
         headers: {
@@ -148,7 +147,6 @@ export class RecommandationService {
       });
       return rightTracks;
     } catch (error) {
-      console.log(error);
       throw new HttpException(
         error.response.data.error.message,
         error.response.data.error.status,

@@ -10,3 +10,8 @@ export interface BasicTrackQuery {
   track: string;
   artist: string;
 }
+
+export interface Playlist {
+  name: string;
+  id: string;
+}

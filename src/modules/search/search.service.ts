@@ -35,7 +35,6 @@ export class SearchService {
     }
 
     const artistInfo = response.data.artists.items[0];
-    console.log(artistInfo);
     return {
       id: artistInfo.id,
       image: artistInfo.images[0].url,
@@ -51,8 +50,6 @@ export class SearchService {
         artist,
       )}&type=track`;
 
-    // cum arunc ce eroare imi da
-    console.log(SPOTIFY_SEARCH_TRACK_URL);
     const response = await this.httpService.axiosRef.get(
       SPOTIFY_SEARCH_TRACK_URL,
       {

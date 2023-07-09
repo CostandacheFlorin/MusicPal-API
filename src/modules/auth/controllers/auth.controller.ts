@@ -20,7 +20,6 @@ export class AuthController {
   @Get('/login')
   async login(@Req() req: Request, @Res() res: Response) {
     const clientId = this.configService.get('SPOTIFY_CLIENT_ID');
-    console.log(clientId);
     const redirectUri = `http://localhost:5000/auth/callback`;
     const scopes =
       'playlist-read-private playlist-modify-private playlist-modify-public user-follow-modify user-follow-read user-read-recently-played user-top-read user-read-playback-position user-library-read user-library-modify';
@@ -68,8 +67,6 @@ export class AuthController {
 
       // Save the access token and refresh token to the user's session or database
       // For example, you can use the authService to store the tokens for the logged-in user
-
-      console.log(accessToken, refreshToken);
 
       const userProfileResponse = await this.httpService.axiosRef.get(
         this.configService.get('SPOTIFY_GET_PROFILE_INFO'),

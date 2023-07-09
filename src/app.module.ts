@@ -11,6 +11,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './modules/auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './modules/users/users.module';
+import { UserSpotifyActionsModule } from './modules/userSpotifyActions/userSpotifyActions.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UsersModule } from './modules/users/users.module';
     UtilsModule,
     AuthModule,
     UsersModule,
+    UserSpotifyActionsModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule], // Import ConfigModule for the ConfigService
       useFactory: async (configService: ConfigService) => ({

@@ -5,12 +5,19 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { Cron } from '@nestjs/schedule';
 import { OneDayInMS } from '../recommendations/helpers/consts';
+import { UsersService } from '../users/users.service';
+import { User } from 'src/models/UserData.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class UtilsService implements OnModuleInit {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
+    @InjectModel('User') private readonly userModel: Model<User>,
+
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
   onModuleInit() {
@@ -48,6 +55,49 @@ export class UtilsService implements OnModuleInit {
       return { success: true };
     } catch (err) {
       throw new Error(err);
+    }
+  }
+
+  async refreshUserToken(user: User) {
+    const clientId = this.configService.get('SPOTIFY_CLIENT_ID');
+    const clientSecret = this.configService.get('SPOTIFY_CLIENT_SECRET');
+
+    const response = await this.httpService.axiosRef.post(
+      'https://accounts.spotify.com/api/token',
+      new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: user.refreshToken,
+      }).toString(),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Basic ${Buffer.from(
+            `${clientId}:${clientSecret}`,
+          ).toString('base64')}`,
+        },
+      },
+    );
+    const { access_token: accessToken, refresh_token: newRefreshToken } =
+      response.data;
+
+    const newUser = new this.userModel({
+      userId: user.userId,
+      refreshToken: user.refreshToken,
+      accessToken: accessToken,
+    });
+
+    this.usersService.updateUser(newUser);
+    return {
+      accessToken,
+      refreshToken: newRefreshToken, // Optional, depending on whether the refresh token was rotated
+    };
+  }
+
+  @Cron('0 */45 * * * *')
+  async refreshAllUsersTokens() {
+    const users = await this.usersService.getUsers();
+    for (const user of users) {
+      this.refreshUserToken(user);
     }
   }
 
