@@ -8,6 +8,7 @@ import config from './config/configuration';
 import { UtilsModule } from './modules/utils/utils.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     RecommendationsModule,
     SearchModule,
     UtilsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
