@@ -63,35 +63,39 @@ export class UtilsService implements OnModuleInit {
     const clientId = this.configService.get('SPOTIFY_CLIENT_ID');
     const clientSecret = this.configService.get('SPOTIFY_CLIENT_SECRET');
 
-    const response = await this.httpService.axiosRef.post(
-      'https://accounts.spotify.com/api/token',
-      new URLSearchParams({
-        grant_type: 'refresh_token',
-        refresh_token: user.refreshToken,
-      }).toString(),
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Basic ${Buffer.from(
-            `${clientId}:${clientSecret}`,
-          ).toString('base64')}`,
+    try {
+      const response = await this.httpService.axiosRef.post(
+        'https://accounts.spotify.com/api/token',
+        new URLSearchParams({
+          grant_type: 'refresh_token',
+          refresh_token: user.refreshToken,
+        }).toString(),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${Buffer.from(
+              `${clientId}:${clientSecret}`,
+            ).toString('base64')}`,
+          },
         },
-      },
-    );
-    const { access_token: accessToken, refresh_token: newRefreshToken } =
-      response.data;
+      );
+      const { access_token: accessToken, refresh_token: newRefreshToken } =
+        response.data;
 
-    const newUser = new this.userModel({
-      userId: user.userId,
-      refreshToken: user.refreshToken,
-      accessToken: accessToken,
-    });
+      const newUser = new this.userModel({
+        userId: user.userId,
+        refreshToken: user.refreshToken,
+        accessToken: accessToken,
+      });
 
-    this.usersService.updateUser(newUser);
-    return {
-      accessToken,
-      refreshToken: newRefreshToken, // Optional, depending on whether the refresh token was rotated
-    };
+      this.usersService.updateUser(newUser);
+      return {
+        accessToken,
+        refreshToken: newRefreshToken, // Optional, depending on whether the refresh token was rotated
+      };
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
   @Cron(CronExpression.EVERY_30_MINUTES)
