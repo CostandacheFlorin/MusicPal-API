@@ -6,7 +6,7 @@ import { Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { User } from '../../../models/UserData.schema';
 import { UsersService } from 'src/modules/users/users.service';
-import { EncryptionUtil } from 'src/services/encryption.service';
+import { EncryptionUtil } from '../../../services/encryption.service';
 import { AES, enc } from 'crypto-js';
 
 @Controller('auth')
