@@ -5,8 +5,8 @@ import { AuthService } from './auth.service';
 import { AuthController } from './controllers/auth.controller';
 import { UsersService } from '../users/users.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserSchema } from 'src/models/UserData.schema';
 import { EncryptionUtil } from 'src/services/encryption.service';
+import { UserSchema } from '../../models/UserData.schema';
 @Module({
   imports: [
     HttpModule,

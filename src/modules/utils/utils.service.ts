@@ -6,7 +6,7 @@ import { Cache } from 'cache-manager';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { OneDayInMS } from '../recommendations/helpers/consts';
 import { UsersService } from '../users/users.service';
-import { User } from 'src/models/UserData.schema';
+import { User } from '../../models/UserData.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 

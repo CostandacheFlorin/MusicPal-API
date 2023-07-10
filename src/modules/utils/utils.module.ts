@@ -5,7 +5,7 @@ import { UtilsService } from './utils.service';
 import { CacheModule } from '@nestjs/cache-manager/dist';
 import { GetMusicGenresController } from './controllers/utils.getSpotifyGenres.controller';
 import { UserSpotifyActionsService } from '../userSpotifyActions/userSpotifyActions.service';
-import { UserSchema } from 'src/models/UserData.schema';
+import { UserSchema } from '../../models/UserData.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersService } from '../users/users.service';
 

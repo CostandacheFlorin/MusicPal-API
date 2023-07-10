@@ -4,7 +4,7 @@ import { CacheModule } from '@nestjs/cache-manager/dist';
 import { UsersService } from './users.service';
 import { UsersController } from './controllers/users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserSchema } from 'src/models/UserData.schema';
+import { UserSchema } from '../../models/UserData.schema';
 
 @Module({
   imports: [
