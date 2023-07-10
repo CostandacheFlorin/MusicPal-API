@@ -100,6 +100,7 @@ export class UserSpotifyActionsService {
     if (!user) {
       throw new HttpException("User doesn't exist!", 404);
     }
+
     const response = await this.httpService.axiosRef.get(
       `https://api.spotify.com/v1/users/${userId}/playlists?limit=50`,
       {

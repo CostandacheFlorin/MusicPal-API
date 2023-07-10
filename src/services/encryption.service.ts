@@ -6,14 +6,16 @@ import { promisify } from 'util';
 @Injectable()
 export class EncryptionUtil {
   private readonly algorithm = 'aes-256-cbc';
-  private readonly key: string;
+  private readonly key: Buffer;
 
-  private readonly ivLength = 32;
+  private readonly ivLength = 16; // IV length for AES-256 is typically 16 bytes (128 bits)
+
   constructor(private readonly configService: ConfigService) {
-    this.key = this.configService.get('ENCRYPT_KEY');
+    const encryptionKey = this.configService.get<string>('ENCRYPT_KEY');
+    this.key = Buffer.from(encryptionKey, 'hex');
   }
 
-  private readonly generateIv = promisify(randomBytes);
+  private generateIv = promisify(randomBytes);
 
   async encryptData(data: string): Promise<string> {
     const iv = await this.generateIv(this.ivLength);

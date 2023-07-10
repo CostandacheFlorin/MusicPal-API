@@ -3,7 +3,7 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { OneDayInMS } from '../recommendations/helpers/consts';
 import { UsersService } from '../users/users.service';
 import { User } from 'src/models/UserData.schema';
@@ -24,7 +24,7 @@ export class UtilsService implements OnModuleInit {
     this.getSpotifyToken();
     this.refreshAllUsersTokens();
   }
-  @Cron('0 */45 * * * *')
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async getSpotifyToken() {
     const cachedToken = await this.cacheManager.get('spotify-auth-token');
     if (cachedToken) {
@@ -94,7 +94,7 @@ export class UtilsService implements OnModuleInit {
     };
   }
 
-  @Cron('0 */45 * * * *')
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async refreshAllUsersTokens() {
     const users = await this.usersService.getUsers();
     for (const user of users) {

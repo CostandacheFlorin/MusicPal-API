@@ -1,4 +1,4 @@
-import { Controller, Put, Delete, Param, Body, Get } from '@nestjs/common';
+import { Controller, Put, Delete, Headers, Body, Get } from '@nestjs/common';
 import { UserSpotifyActionsService } from '../userSpotifyActions.service';
 @Controller('user-actions')
 export class FollowController {
@@ -8,26 +8,40 @@ export class FollowController {
 
   @Put('/follow-artist')
   async FollowArtistForUser(
-    @Body() user: { artistId: string; userId: string },
+    @Headers('decrypted') userId: string,
+    @Body() user: { artistId: string },
   ) {
-    return this.usersSpotifyActionsService.followArtist(
-      user.userId,
-      user.artistId,
-    );
+    try {
+      return this.usersSpotifyActionsService.followArtist(
+        userId,
+        user.artistId,
+      );
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
   @Delete('/unfollow-artist')
   async UnfollowArtistForUser(
-    @Body() user: { artistId: string; userId: string },
+    @Headers('decrypted') userId: string,
+    @Body() user: { artistId: string },
   ) {
-    return this.usersSpotifyActionsService.unfollowArtist(
-      user.userId,
-      user.artistId,
-    );
+    try {
+      return this.usersSpotifyActionsService.unfollowArtist(
+        userId,
+        user.artistId,
+      );
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
-  @Get('/get-followed-artists/:userId')
-  async getSavedTracks(@Param('userId') userId: string) {
-    return this.usersSpotifyActionsService.getFollowedArtistsForUser(userId);
+  @Get('/get-followed-artists')
+  async getSavedTracks(@Headers('decrypted') userId: string) {
+    try {
+      return this.usersSpotifyActionsService.getFollowedArtistsForUser(userId);
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 }

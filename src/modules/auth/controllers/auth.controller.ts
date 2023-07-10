@@ -7,6 +7,8 @@ import { Model } from 'mongoose';
 import { User } from 'src/models/UserData.schema';
 import { UsersService } from 'src/modules/users/users.service';
 import { EncryptionUtil } from 'src/services/encryption.service';
+import { AES, enc } from 'crypto-js';
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -66,7 +68,6 @@ export class AuthController {
         tokenResponse.data;
 
       // Save the access token and refresh token to the user's session or database
-      // For example, you can use the authService to store the tokens for the logged-in user
 
       const userProfileResponse = await this.httpService.axiosRef.get(
         this.configService.get('SPOTIFY_GET_PROFILE_INFO'),
@@ -88,12 +89,16 @@ export class AuthController {
 
         await newUser.save();
       }
+      const encryptedData = AES.encrypt(
+        spotifyId,
+        this.configService.get('ENCRYPT_KEY'),
+      ).toString();
 
       // Redirect the user to a success page or perform any other necessary actions
       res.redirect(
         `${this.configService.get(
           'SPOTIFY_REDIRECT_SUCCESS',
-        )}?data=${spotifyId}`,
+        )}?data=${encryptedData}`,
       );
     } catch (error) {
       console.error('Error exchanging authorization code for tokens:', error);

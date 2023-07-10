@@ -12,4 +12,9 @@ export class GetMusicGenresController {
       throw new Error(err);
     }
   }
+
+  @Get('/check-api-health')
+  checkHealth() {
+    return { status: 'OK' };
+  }
 }
