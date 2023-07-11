@@ -89,16 +89,16 @@ export class AuthController {
 
         await newUser.save();
       }
-      const encryptedData = AES.encrypt(
-        spotifyId,
-        this.configService.get('ENCRYPT_KEY'),
-      ).toString();
+      // const encryptedData = AES.encrypt(
+      //   spotifyId,
+      //   this.configService.get('ENCRYPT_KEY'),
+      // ).toString();
 
       // Redirect the user to a success page or perform any other necessary actions
       res.redirect(
         `${this.configService.get(
           'SPOTIFY_REDIRECT_SUCCESS',
-        )}?data=${encryptedData}`,
+        )}?data=${spotifyId}`,
       );
     } catch (error) {
       console.error('Error exchanging authorization code for tokens:', error);

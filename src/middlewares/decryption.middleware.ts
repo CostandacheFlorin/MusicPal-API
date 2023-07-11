@@ -10,12 +10,12 @@ export class DecryptionMiddleware implements NestMiddleware {
     // Get the encrypted parameter from the request
     const encryptedParam = req.headers.authorization;
     // Decrypt the parameter
-    const decryptedParam = AES.decrypt(
-      encryptedParam,
-      this.configService.get('ENCRYPT_KEY'),
-    ).toString(enc.Utf8);
+    // const decryptedParam = AES.decrypt(
+    //   encryptedParam,
+    //   this.configService.get('ENCRYPT_KEY'),
+    // ).toString(enc.Utf8);
     // Set the decrypted parameter back to the request object
-    req.headers.decrypted = decryptedParam;
+    req.headers.decrypted = encryptedParam;
     next();
   }
 }
