@@ -100,9 +100,13 @@ export class UtilsService implements OnModuleInit {
 
   @Cron(CronExpression.EVERY_30_MINUTES)
   async refreshAllUsersTokens() {
-    const users = await this.usersService.getUsers();
-    for (const user of users) {
-      this.refreshUserToken(user);
+    try {
+      const users = await this.usersService.getUsers();
+      const refreshPromises = users.map((user) => this.refreshUserToken(user));
+
+      await Promise.all(refreshPromises);
+    } catch (error) {
+      throw new Error(error);
     }
   }
 
